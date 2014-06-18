@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""This scripts uses the Minddistrict API in order to add
-professional from an CSV file.
+"""This script uses the Minddistrict API in order to add
+professionals from an CSV file.
 """
 import argparse
 import csv
@@ -9,13 +9,14 @@ import httplib
 import urlparse
 import sys
 
+
 def get_port_number(info):
     """Return the correct port number to query.
     """
     if info.port:
         return int(info.port)
     if info.scheme == 'https':
-        return  443
+        return 443
     return 80
 
 
@@ -27,7 +28,7 @@ def query_api(url, data=None, token=None, method='GET'):
     body = None
     headers = {'Accept': 'application/json'}
     if token:
-        headers['Authorization'] = 'md-token '+ token
+        headers['Authorization'] = 'md-token ' + token
     if data:
         body = json.dumps(data)
         headers['Content-Type'] = 'application/json'
@@ -40,7 +41,7 @@ def query_api(url, data=None, token=None, method='GET'):
         print 'URL:', url
         print 'Body:', response.read()
         sys.exit(1)
-    if response.status in [204,]:
+    if response.status == 204:
         # 204 doesn't return any data.
         result = None
     else:
@@ -82,11 +83,11 @@ def read_csv(path):
         reader.next()  # Skip the first "header" row.
         for row in reader:
             professionals.append({
-                'email': row[0],
-                'id': row[1],
-                'first_name': unicode(row[2], "UTF-8"),
-                'infix': unicode(row[3], "UTF-8"),
-                'last_name': unicode(row[4], "UTF-8"),
+                'email': row[0].strip(),
+                'id': row[1].strip(),
+                'first_name': unicode(row[2], "UTF-8").strip(),
+                'infix': unicode(row[3], "UTF-8").strip(),
+                'last_name': unicode(row[4], "UTF-8").strip(),
                 'role': ROLE_MAP[row[5].strip().lower()],
             })
     return professionals
