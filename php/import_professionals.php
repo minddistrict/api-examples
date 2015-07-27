@@ -14,6 +14,14 @@ function add_professional(
         "email" => $email
     );
     $result = json_decode(post($url, $payload, $token));
+
+    if (property_exists($result, 'code') && $result->code != 201) {
+        var_dump($url);
+        var_dump($payload);
+        var_dump($token);
+        var_dump($result);
+        exit();
+    }
     return $result->{"@url"};
 }
 
