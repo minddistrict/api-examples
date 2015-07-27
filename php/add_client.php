@@ -38,4 +38,4 @@ function add_client_random($API_URL, $token) {
         random_gender());
 }
 
-add_client_random($API_URL, $token);
+add_client_random($config_url, $config_token);
