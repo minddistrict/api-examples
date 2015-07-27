@@ -76,6 +76,7 @@ function import_professionals ($url, $token, $filepath) {
         $professional_url = add_professional(
             $url, $token, $first_name, $infix, $last_name, $id, $email);
         set_role($professional_url, $token, $role);
+        echo "Added $email.\n";
     }
     fclose($file);
 }
