@@ -67,7 +67,7 @@ function import_professionals ($url, $token, $filepath) {
             $header_seen = true;
             continue;
         }
-        $email = $line[0];
+        $email = strtolower($line[0]);
         $id = $line[1];
         $first_name = $line[2];
         $infix = $line[3];
