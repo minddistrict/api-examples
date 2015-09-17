@@ -24,7 +24,7 @@ def query_api(url, data=None, token=None, method='GET'):
     """Query a specific endpoint in the API.
     """
     info = urlparse.urlparse(url)
-    connection = httplib.HTTPConnection(info.hostname, get_port_number(info))
+    connection = httplib.HTTPSConnection(info.hostname, get_port_number(info))
     body = None
     headers = {'Accept': 'application/json'}
     if token:
