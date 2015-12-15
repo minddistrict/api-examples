@@ -2,53 +2,9 @@
 """This script uses the Minddistrict API in order to add
 professionals from an CSV file.
 """
-import ConfigParser
 import csv
-import json
-import httplib
-import urlparse
-import sys
-
-
-def get_port_number(info):
-    """Return the correct port number to query.
-    """
-    if info.port:
-        return int(info.port)
-    if info.scheme == 'https':
-        return 443
-    return 80
-
-
-def query_api(url, data=None, token=None, method='GET'):
-    """Query a specific endpoint in the API.
-    """
-    info = urlparse.urlparse(url)
-    connection = httplib.HTTPSConnection(info.hostname, get_port_number(info))
-    body = None
-    headers = {'Accept': 'application/json'}
-    if token:
-        headers['Authorization'] = 'md-token ' + token
-    if data:
-        body = json.dumps(data)
-        headers['Content-Type'] = 'application/json'
-    connection.request(
-        method=method, url=info.path, body=body, headers=headers)
-    response = connection.getresponse()
-    if response.status not in [200, 201, 204]:
-        print 'Error while querying the API:'
-        print 'Method:', method
-        print 'URL:', url
-        print 'Body:', response.read()
-        sys.exit(1)
-    if response.status == 204:
-        # 204 doesn't return any data.
-        result = None
-    else:
-        result = json.loads(response.read())
-    connection.close()
-    return result
-
+import util
+import config
 
 ROLE_MAP = {
     'secretary': 'ith.Secretary',
@@ -59,7 +15,7 @@ ROLE_MAP = {
 }
 
 
-def read_csv(path):
+def get_professionals_to_import(path):
     """Read the CSV file returning professional information as Python
     dictionaries.
     """
@@ -79,41 +35,57 @@ def read_csv(path):
     return professionals
 
 
-def add_professionals(professionals, url, token):
-    """Add the list of professional using the API at URL and the given token.
-    """
-    professionals_url = url + '/p'
+class Professional(object):
 
-    for professional in professionals:
-        print 'Create', professional["email"]
-        # Create the professional
-        result = query_api(
-            url=professionals_url,
-            data={"email": professional["email"],
-                  "id": professional["id"],
-                  "first_name": professional["first_name"],
-                  "infix": professional["infix"],
-                  "last_name": professional["last_name"],
-                  "active": True},
-            token=token,
+    def __init__(self, email, id, first_name, infix, last_name):
+        self.professionals_url = config.url + '/p'
+        self.email = email
+        self.id = id
+        self.first_name = first_name
+        self.infix = infix
+        self.last_name = last_name
+
+    def create(self):
+        print 'Create', self.email
+        # TODO Raise error if problem.
+        result = util.query_api(
+            url=self.professionals_url,
+            data={
+                "email": self.email,
+                "id": self.id,
+                "first_name": self.first_name,
+                "infix": self.infix,
+                "last_name": self.last_name,
+                "active": True},
+            token=config.token,
             method='POST')
-        # Set the role of the professional
-        professional_url = result['@url'] + '/roles'
-        result = query_api(
-            url=professional_url,
-            data={"roles": [professional["role"]]},
-            token=token,
+        self.url = result['@url']
+
+    def set_role(self, role):
+        url = self.url + '/roles'
+        return util.query_api(
+            url=url,
+            data={"roles": [role]},
+            token=config.token,
             method='PATCH')
 
 
-def csv_to_professional_import():
-    cp = ConfigParser.ConfigParser()
-    cp.read('config.ini')
-    token = cp.get('config', 'token')
-    url = cp.get('config', 'url')
-    path = cp.get('config', 'path')
-    professionals = read_csv(path)
-    add_professionals(professionals, url, token)
+def add_professionals(professionals, url, token):
+    for professional_info in professionals:
+        prof = Professional(
+            professional_info['email'],
+            professional_info['id'],
+            professional_info['first_name'],
+            professional_info['infix'],
+            professional_info['last_name']
+        )
+        prof.create()
+        prof.set_role(professional_info['role'])
+
 
 if __name__ == '__main__':
-    csv_to_professional_import()
+    add_professionals(
+        get_professionals_to_import(config.path),
+        config.url,
+        config.token)
+    print "done"
