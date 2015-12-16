@@ -1,7 +1,11 @@
-import json
+# stdlib modules
 import httplib
-import urlparse
+import json
 import sys
+import time
+import urlparse
+
+# Local modules
 import config
 
 
@@ -18,6 +22,7 @@ def get_port_number(info):
 def query_api(url, data=None, method='GET'):
     """Query a specific endpoint in the API.
     """
+    time.sleep(config.wait_between_requests)
     info = urlparse.urlparse(url)
     connection = httplib.HTTPSConnection(info.hostname, get_port_number(info))
     body = None
