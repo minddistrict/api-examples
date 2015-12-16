@@ -2,6 +2,7 @@ import json
 import httplib
 import urlparse
 import sys
+import config
 
 
 def get_port_number(info):
@@ -14,15 +15,14 @@ def get_port_number(info):
     return 80
 
 
-def query_api(url, data=None, token=None, method='GET'):
+def query_api(url, data=None, method='GET'):
     """Query a specific endpoint in the API.
     """
     info = urlparse.urlparse(url)
     connection = httplib.HTTPSConnection(info.hostname, get_port_number(info))
     body = None
     headers = {'Accept': 'application/json'}
-    if token:
-        headers['Authorization'] = 'md-token ' + token
+    headers['Authorization'] = 'md-token ' + config.token
     if data:
         body = json.dumps(data)
         headers['Content-Type'] = 'application/json'
