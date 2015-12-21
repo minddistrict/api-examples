@@ -1,12 +1,17 @@
 # stdlib modules
 import httplib
 import json
+import pprint
 import sys
 import time
 import urlparse
 
 # Local modules
 import config
+
+
+def pretty_print(var):
+    pprint.pprint(var)
 
 
 class InvalidAPICall(Exception):
@@ -85,12 +90,35 @@ class APICaller(object):
         if self.response.status != 204:
             self.result = json.loads(self.response.read())
 
+    def debug_input(self):
+        print '\n', 40 * '-'
+        print "INPUT"
+        print "url: {}".format(self.url)
+        print "method: {}".format(self.method)
+        print "data:"
+        pretty_print(self.data)
+        print "headers:"
+        pretty_print(self.headers)
+        print "body:"
+        pretty_print(self.body)
+
+    def debug_output(self):
+        print '\n', 40 * '-'
+        print "OUTPUT"
+        print "status: {}".format(self.response.status)
+        print "result:"
+        pretty_print(self.result)
+
     def __call__(self):
         self.wait_between_calls()
+        if config.debug:
+            self.debug_input()
         with Connection(self.url) as connection:
             connection.send_call(self.method, self.headers, self.body)
             self.response = connection.response
             self.process_response()
+        if config.debug:
+            self.debug_output()
         return self.result
 
 
