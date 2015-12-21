@@ -9,41 +9,94 @@ import urlparse
 import config
 
 
-def get_port_number(info):
-    """Return the correct port number to query.
-    """
-    if info.port:
-        return int(info.port)
-    if info.scheme == 'https':
-        return 443
-    return 80
+class InvalidAPICall(Exception):
+    pass
+
+
+class Connection(object):
+    # Contextmanager for http connection.
+
+    def __init__(self, url):
+        parsed_url = urlparse.urlparse(url)
+        self.port = self.get_port(parsed_url)
+        self.hostname = parsed_url.hostname
+        self.path = parsed_url.path
+
+    def get_port(self, parsed_url):
+        if parsed_url.port:
+            return int(parsed_url.port)
+        if parsed_url.scheme == 'https':
+            return 443
+        return 80
+
+    def __enter__(self):
+        self.connection = httplib.HTTPSConnection(self.hostname, self.port)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.connection.close()
+
+    def send_call(self, method, headers, body):
+        self.connection.request(
+            method=method,
+            url=self.path,
+            body=body,
+            headers=headers)
+
+    @property
+    def response(self):
+        return self.connection.getresponse()
+
+
+class APICaller(object):
+
+    def __init__(self, url, data, method):
+        self.url = url
+        self.data = data
+        self.method = method
+        self.headers = self.get_headers()
+        self.body = self.get_body()
+        self.result = None
+
+    def get_headers(self):
+        headers = {'Accept': 'application/json'}
+        headers['Authorization'] = 'md-token ' + config.token
+        if self.data:
+            headers['Content-Type'] = 'application/json'
+        return headers
+
+    def get_body(self):
+        return json.dumps(self.data) if self.data else None
+
+    def wait_between_calls(self):
+        time.sleep(config.wait_between_requests)
+
+    def check_response_for_invalid(self):
+        if self.response.status not in [200, 201, 204]:
+            raise InvalidAPICall(
+                "Error while querying the API:\n",
+                "Method: {}\n".format(self.method),
+                "URL: {}\n".format(self.url),
+                "Body: {}\n".format(self.response.read()))
+
+    def process_response(self):
+        self.check_response_for_invalid()
+        # A 204 doesn't return any data.
+        if self.response.status != 204:
+            self.result = json.loads(self.response.read())
+
+    def __call__(self):
+        self.wait_between_calls()
+        with Connection(self.url) as connection:
+            connection.send_call(self.method, self.headers, self.body)
+            self.response = connection.response
+            self.process_response()
+        return self.result
 
 
 def query_api(url, data=None, method='GET'):
-    """Query a specific endpoint in the API.
-    """
-    time.sleep(config.wait_between_requests)
-    info = urlparse.urlparse(url)
-    connection = httplib.HTTPSConnection(info.hostname, get_port_number(info))
-    body = None
-    headers = {'Accept': 'application/json'}
-    headers['Authorization'] = 'md-token ' + config.token
-    if data:
-        body = json.dumps(data)
-        headers['Content-Type'] = 'application/json'
-    connection.request(
-        method=method, url=info.path, body=body, headers=headers)
-    response = connection.getresponse()
-    if response.status not in [200, 201, 204]:
-        print 'Error while querying the API:'
-        print 'Method:', method
-        print 'URL:', url
-        print 'Body:', response.read()
-        sys.exit(1)
-    if response.status == 204:
-        # 204 doesn't return any data.
-        result = None
-    else:
-        result = json.loads(response.read())
-    connection.close()
-    return result
+    # Thin wrapper around APICaller.
+    try:
+        return APICaller(url, data, method)()
+    except InvalidAPICall as error:
+        sys.exit(error)
