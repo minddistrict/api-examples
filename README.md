@@ -1,6 +1,6 @@
 # Code examples for the Minddistrict REST API
 
-This GitHub repository contains Python 2 and PHP scripts that use the
+This GitHub repository contains Python2 and PHP scripts that use the
 Minddistrict REST API.
 
 The `import_professionals.py` script lets you import accounts using a .csv
