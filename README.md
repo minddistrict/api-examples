@@ -8,7 +8,7 @@ file.
 
 # More information
 
-More detailed documentation can be found at https://docs.minddistrict.com
+The API documentation can be found at https://docs.minddistrict.com
 
 More information about Minddistrict can be found at
 http://www.minddistrict.com
