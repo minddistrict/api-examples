@@ -38,24 +38,4 @@ function add_client_random($API_URL, $token) {
         random_gender());
 }
 
-function add_client_command_line() {
-    $first_name = $argv[3];
-    $infix = $argv[4];
-    $last_name = $argv[5];
-    $id = $argv[6];
-    $email = $argv[7];
-    $date_of_birth = $argv[8];
-    $gender = $argv[9];
-    add_client(
-        $API_URL,
-        $token,
-        $first_name,
-        $infix,
-        $last_name,
-        $id,
-        $email,
-        $date_of_birth,
-        $gender);
-}
-
-add_client_random($API_URL, $token);
+add_client_random($config_url, $config_token);

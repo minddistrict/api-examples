@@ -2,7 +2,7 @@
 """This script uses the Minddistrict API in order to add
 professionals from an CSV file.
 """
-import argparse
+import ConfigParser
 import csv
 import json
 import httplib
@@ -48,20 +48,6 @@ def query_api(url, data=None, token=None, method='GET'):
         result = json.loads(response.read())
     connection.close()
     return result
-
-
-def get_api_token(url, login, password):
-    """Retrieve a token out of the API.
-    """
-    authenticate_url = url + '/authenticate'
-    result = query_api(
-        url=authenticate_url,
-        data={"login": login,
-              "password": password,
-              "id": "inport_clients.py",
-              "description": "Import clients API example"},
-        method='POST')
-    return result['token']
 
 
 ROLE_MAP = {
@@ -121,24 +107,13 @@ def add_professionals(professionals, url, token):
 
 
 def csv_to_professional_import():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'login',
-        help=('Login to use'))
-    parser.add_argument(
-        'password',
-        help=('Password to use'))
-    parser.add_argument(
-        'url',
-        help=('API Base url.'))
-    parser.add_argument(
-        'path',
-        help=('The path to the csv file.'))
-
-    args = parser.parse_args()
-    professionals = read_csv(args.path)
-    token = get_api_token(args.url, args.login, args.password)
-    add_professionals(professionals, args.url, token)
+    cp = ConfigParser.ConfigParser()
+    cp.read('config.ini')
+    token = cp.get('config', 'token')
+    url = cp.get('config', 'url')
+    path = cp.get('config', 'path')
+    professionals = read_csv(path)
+    add_professionals(professionals, url, token)
 
 if __name__ == '__main__':
     csv_to_professional_import()

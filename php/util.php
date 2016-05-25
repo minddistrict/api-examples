@@ -37,6 +37,31 @@ function post($url, $payload, $token = NULL) {
     return $result;
 }
 
+function patch($url, $payload, $token = NULL) {
+    $json_string = json_encode($payload);
+    $http_headers = array(
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'Content-Length: ' . strlen($json_string)
+    );
+
+    $http_headers = add_token($http_headers, $token);
+
+    $settings = array(
+        CURLOPT_CUSTOMREQUEST => "PATCH",
+        CURLOPT_POSTFIELDS => $json_string,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $http_headers,
+        CURLOPT_URL => $url
+    );
+
+    $ch = curl_init();
+    curl_setopt_array($ch, $settings);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}
+
 function get($url, $token = NULL) {
     $http_headers = array('Accept: application/json');
     $http_headers = add_token($http_headers, $token);

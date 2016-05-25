@@ -5,30 +5,17 @@ error_reporting(E_ALL);
 
 include "util.php";
 
-if (!isset($argv[1])){
-    exit("Supply the base url of the application as the first argument.\n");
+$config = parse_ini_file('config.ini');
+$config_token = $config['token'];
+$config_path = $config['path'];
+$config_url = $config['url'];
+
+
+if (strpos($config_url, 'api' == False)) {
+    exit('The API url is incorrect; it does not contain "api".');
 }
-$base_url = $argv[1];
-if (substr($base_url, -1) != '/') {
-    $base_url .= '/';
-}
 
-
-if (!isset($argv[2])){
-    exit("Supply a username known in the application as the second argument.\n");
-}
-$username = $argv[2];
-
-
-if (!isset($argv[3])){
-    exit("Supply the corresponding password as the third argument.\n");
-}
-$password = $argv[3];
-
-$API_VERSION = 1;
-$API_URL = $base_url . 'api/' . $API_VERSION . '/';
-
-$token = get_token($API_URL, $username, $password);
-if ($token == false){
-    exit("Could not get token.\n");
+# Double parentheses to prevent the "passed by reference warning".
+if (end((str_split($config_url))) != '/') {
+    exit('The API url needs to end with a "/" character.');
 }

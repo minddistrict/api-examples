@@ -1,8 +1,9 @@
 ===========================================
 Code examples for the Minddistrict REST API
 ===========================================
-This GitHub repository contains Python 2 scripts that use the Minddistrict
-REST API.
+
+This GitHub repository contains Python 2 and PHP scripts that use the
+Minddistrict REST API.
 
 The following script lets you import accounts using a .csv file.
 
