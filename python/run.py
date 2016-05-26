@@ -53,6 +53,15 @@ def add_random_client():
         random_data.date_of_birth())
 
 
+def randomize_and_deactivate_all_clients():
+    num = 0
+    for client in clients.Clients(config.url).get_all_clients():
+        print "."
+        client.randomize_and_deactivate()
+        num += 1
+    print "randomized and deactivated {} clients".format(num)
+
+
 def add_random_clients():
     """
     Add a number of clients with random data.
