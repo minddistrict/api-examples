@@ -44,6 +44,9 @@ def last_name():
         "Tannen"
     ])
 
+def nick_name():
+    return first_name()[:1] + '.' + last_name()
+
 
 def id():
     return random.randint(1000, 10000)
@@ -70,6 +73,10 @@ def date_of_birth():
     month = '{0:02d}'.format(random.randint(1, 12))
     day = '{0:02d}'.format(random.randint(1, 28))
     return "{}-{}-{}".format(year, month, day)
+
+
+def age():
+    return random.choice(range(18,80))
 
 
 def gender():

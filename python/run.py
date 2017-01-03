@@ -21,6 +21,16 @@ def list_clients():
         print client.id, client.email, client.first_name
 
 
+def list_anonymous_clients():
+    """
+    For all anonymous clients, list some of their attributes.
+    """
+    for client in clients.Clients(config.url).get_all_clients():
+        # If they have a nickname they must be anonymous.
+        if client.__dict__['nickname']:
+            print client.id, client.email, client.nickname
+
+
 def show_client_tasks():
     """
     For a certain client list all their tasks.
