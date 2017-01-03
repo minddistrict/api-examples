@@ -62,6 +62,18 @@ def add_random_client():
         random_data.gender(),
         random_data.date_of_birth())
 
+def add_random_anonymous_client():
+    client_factory = clients.Clients(config.url)
+    nick_name = random_data.nick_name()
+    email = random_data.email(nick_name, nick_name, nick_name)
+    age = random_data.age()
+    client_factory.create_anonymous_client(
+        random_data.id(),
+        email,
+        nick_name,
+        age,
+        random_data.gender())
+
 
 def randomize_and_deactivate_all_clients():
     num = 0

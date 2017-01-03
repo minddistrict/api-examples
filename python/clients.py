@@ -100,6 +100,20 @@ class Clients(object):
                 "gender": gender})
         print "Added client {}".format(email)
 
+    def create_anonymous_client(
+            self, id, email, nick_name, age, gender):
+        util.query_api(
+            url=self.url,
+            method='POST',
+            data={
+                "id": "{}".format(id),
+                "email": email,
+                "active": True,
+                "nick_name": nick_name,
+                "age": age,
+                "gender": gender})
+        print "Added client {}".format(email)
+
     def get_all_clients(self):
         result = util.query_api(url=self.url + '/items', method='GET')
         for client_result in result['@items']:
