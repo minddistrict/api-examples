@@ -5,6 +5,7 @@ Starting point for demos of the Minddistrict REST API endpoints.
 import argparse
 import inspect
 import csv
+import random
 
 # local imports
 import clients
@@ -49,12 +50,13 @@ def show_client_tasks():
 
 def add_random_client():
     client_factory = clients.Clients(config.url)
+    random_id = random_data.id()
     first_name = random_data.first_name()
     infix = random_data.infix()
     last_name = random_data.last_name()
-    email = random_data.email(first_name, infix, last_name)
+    email = random_data.email(first_name, infix, last_name, random_id)
     client_factory.create_client(
-        random_data.id(),
+        random_id,
         email,
         first_name,
         infix,
@@ -77,7 +79,8 @@ def add_random_clients():
     Add a number of clients with random data.
     """
     NUMBER_OF_CLIENTS_TO_ADD = 10
-    for _ in range(NUMBER_OF_CLIENTS_TO_ADD):
+    for i in range(NUMBER_OF_CLIENTS_TO_ADD):
+        print i
         add_random_client()
 
 
@@ -88,6 +91,31 @@ def list_professionals():
     for professional in professionals.Professionals(
             config.url).get_all_professionals():
         print professional.id, professional.email, professional.first_name
+
+
+def add_random_professional():
+    factory = professionals.Professionals(config.url)
+    random_id = random_data.id()
+    first_name = random_data.first_name()
+    infix = random_data.infix()
+    last_name = random_data.last_name()
+    email = random_data.email(first_name, infix, last_name)
+    professional = factory.create_professional(
+        random_id,
+        email,
+        first_name,
+        infix,
+        last_name)
+    professional.set_role(random.choice(ROLE_MAP.values()))
+
+
+def add_random_professionals():
+    """
+    Add a number of professionals with random data.
+    """
+    NUMBER_OF_PROFESSIONALS_TO_ADD = 10
+    for _ in range(NUMBER_OF_PROFESSIONALS_TO_ADD):
+        add_random_professional()
 
 
 def show_professional_tasks():

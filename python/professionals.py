@@ -44,13 +44,14 @@ class Professionals(object):
             url=self.url,
             method='POST',
             data={
-                "id": id,
+                "id": str(id),
                 "email": email,
                 "active": True,
                 "first_name": first_name,
                 "infix": infix,
                 "last_name": last_name})
         print "Added professional {}".format(email)
+        return self.get_by_id(id)
 
     def get_all_professionals(self):
         result = util.query_api(url=self.url + '/items', method='GET')

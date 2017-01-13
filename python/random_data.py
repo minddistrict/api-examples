@@ -1,4 +1,5 @@
 import random
+import string
 
 
 def first_name():
@@ -44,20 +45,23 @@ def last_name():
         "Tannen"
     ])
 
+
 def nick_name():
     return first_name()[:1] + '.' + last_name()
 
 
 def id():
-    return random.randint(1000, 10000)
+    return str(random.randint(1000, 10000)) + \
+        ''.join(random.choice(string.ascii_lowercase) for i in range(8))
 
 
-def email(first_name, infix, last_name):
+def email(first_name, infix, last_name, random_id=id()):
     email = ''
     email += first_name.lower()
     if infix:
         email += '.' + infix.lower()
     email += '.' + last_name.lower()
+    email += random_id
     email += '@' + random.choice([
         "example.com",
         "example.org",
